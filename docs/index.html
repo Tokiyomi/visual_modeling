@@ -1,0 +1,699 @@
+<!doctype html>
+<html>
+<head>
+
+<style>
+h1 {text-align: center;}
+h2 {text-align: center;}
+h3 {text-align: left;
+    margin: 20px 300px 20px 300px; font-size: 20px;}
+p {text-align: justify;font-size: 18px;}
+a {text-align: center;}
+</style>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link rel="icon" type="image/png" href="figs/nyan_cat.ico"/>
+<title>Suicides</title>
+</head>
+
+<body><div>
+<div ><p style="text-align:center"><img src="figs/upy.png" alt="semujeres_logo" style="zoom:15%;"/></p>
+
+
+<h1><span>EDA of Mexican Suicides from INEGI </span></h1></div></div>
+<h2><b>Visual Modeling for Information - Carolina Garma Escoffié</b></h2>
+
+<p style="margin: 20px 300px 20px 300px">
+    In commemoration of World Suicide Prevention Day (September 10), the exploratory data analysis presented here corresponds to the number 
+    of suicides registered in Mexico by state from 2010 to 2020 using information from mortality indicators and the population and housing census (2020) from INEGI.<br><br>
+    The objective of this EDA is to identify the states with the highest suicide rates by total population and sex, as well as to know their growth trends per year.
+</p>
+
+<h3>DataFrame Generation</h3>
+
+<p style="margin: 20px 300px 20px 300px">
+    Two tabulations available on the INEGI website were used. The first corresponds to mortality indicators and contains information on the total number of deaths by suicide 
+    by state of habitual residence of the deceased by sex, annual series from 2010 to 2020, <a href="https://www.inegi.org.mx/app/tabulados/interactivos/?pxq=Mortalidad_Mortalidad_07_f0cd1efa-574e-4d2a-b618-1b87ef910122">available here<a>. 
+        This tabulation contains 35 rows corresponding to each state, 
+    unidentified cases and foreigners. As columns, there were originally 10 columns that were also divided into total population, men and women for each year. 
+    To generate the dataframe used in this analysis, a series of preprocessing steps were performed to keep only 32 rows, one for each state, and 30 columns, 
+    10 for total suicides, 10 for total suicides in men and finally 10 corresponding to the number of suicides in women per year. <br><br>
+
+    The second tabulation was obtained from the .csv file corresponding to the <a href="https://www.inegi.org.mx/programas/ccpv/2020/#Resultados_generales">2020 population and housing census</a>, from which the data corresponding to the total 
+    population by sex for each state was extracted. <br><br>
+
+    Finally, having both tables correctly processed, a merge operation was performed to have a single dataframe with each state as a single row, and the population totals 
+    and the number of suicides per year as columns.<br><br>
+
+    For the calculation of suicide rates per 100,000 inhabitants, the columns of suicides registered in 2020 were used and divided by the total population per state from 
+    the population and housing census.<br><br>
+
+    In order to generate the maps, geostatistical data from INEGI at the national and state levels were used.<br><br>
+
+</p>
+
+    <table class="tg" style="margin-left:auto;margin-right:auto">
+    <thead>
+      <tr>
+        <th class="tg-nftg" colspan="2"><span style="font-weight:bold;color:#000;background-color:#F38630">DataFrame Information</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">Columns   </span></td>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">44   </span></td>
+      </tr>
+      <tr>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">Rows   </span></td>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">32   </span></td>
+      </tr>
+      <tr>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">Data Types   </span></td>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">float64(3), geometry(1), int32(3), int64(33), object(4)   </span></td>
+      </tr>
+      <tr>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">Memory usage   </span></td>
+        <td class="tg-7fd7"><span style="color:#333;background-color:#FFF">   </span><br><span style="color:#333;background-color:#FFF">12.1+ KB   </span></td>
+      </tr>
+    </tbody>
+    </table>
+
+<br>
+
+        <table class="tg" style="margin: 20px 300px 20px 300px">
+        <thead>
+          <tr>
+            <th class="tg-eiws"></th>
+            <th class="tg-eiws">Entidad</th>
+            <th class="tg-eiws">2010_Total</th>
+            <th class="tg-eiws">2010_Hombres</th>
+            <th class="tg-eiws">2010_Mujeres</th>
+            <th class="tg-eiws">...</th>
+            <th class="tg-eiws">2020_Total</th>
+            <th class="tg-eiws">2020_Hombres</th>
+            <th class="tg-eiws">2020_Mujeres</th>
+            <th class="tg-g2fw">Tasa_2020</th>
+            <th class="tg-g2fw">Tasa_H_2020</th>
+            <th class="tg-g2fw">Tasa_M_2020</th>
+            <th class="tg-g2fw">geometry_ent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tg-0gtp">0</td>
+            <td class="tg-0gtp">Aguascalientes</td>
+            <td class="tg-0gtp">50</td>
+            <td class="tg-0gtp">41</td>
+            <td class="tg-0gtp">9</td>
+            <td class="tg-0gtp">...</td>
+            <td class="tg-0gtp">181</td>
+            <td class="tg-0gtp">157</td>
+            <td class="tg-0gtp">24</td>
+            <td class="tg-0gtp">13.0</td>
+            <td class="tg-0gtp">23.0</td>
+            <td class="tg-0gtp">3.0</td>
+            <td class="tg-0gtp">POLYGON ((2470517.824 1155028.588, 2470552.248...</td>
+          </tr>
+          <tr>
+            <td class="tg-xoz2">1</td>
+            <td class="tg-xoz2">Baja California</td>
+            <td class="tg-xoz2">107</td>
+            <td class="tg-xoz2">91</td>
+            <td class="tg-xoz2">16</td>
+            <td class="tg-xoz2">...</td>
+            <td class="tg-xoz2">97</td>
+            <td class="tg-xoz2">87</td>
+            <td class="tg-xoz2">10</td>
+            <td class="tg-xoz2">3.0</td>
+            <td class="tg-xoz2">5.0</td>
+            <td class="tg-xoz2">1.0</td>
+            <td class="tg-xoz2">MULTIPOLYGON (((1493197.166 1849625.247, 14934...</td>
+          </tr>
+          <tr>
+            <td class="tg-0gtp">2</td>
+            <td class="tg-0gtp">Baja California Sur</td>
+            <td class="tg-0gtp">45</td>
+            <td class="tg-0gtp">43</td>
+            <td class="tg-0gtp">2</td>
+            <td class="tg-0gtp">...</td>
+            <td class="tg-0gtp">67</td>
+            <td class="tg-0gtp">59</td>
+            <td class="tg-0gtp">8</td>
+            <td class="tg-0gtp">8.0</td>
+            <td class="tg-0gtp">15.0</td>
+            <td class="tg-0gtp">2.0</td>
+            <td class="tg-0gtp">MULTIPOLYGON (((1694656.344 1227647.637, 16946...</td>
+          </tr>
+          <tr>
+            <td class="tg-xoz2">3</td>
+            <td class="tg-xoz2">Campeche</td>
+            <td class="tg-xoz2">62</td>
+            <td class="tg-xoz2">53</td>
+            <td class="tg-xoz2">9</td>
+            <td class="tg-xoz2">...</td>
+            <td class="tg-xoz2">70</td>
+            <td class="tg-xoz2">48</td>
+            <td class="tg-xoz2">22</td>
+            <td class="tg-xoz2">8.0</td>
+            <td class="tg-xoz2">11.0</td>
+            <td class="tg-xoz2">5.0</td>
+            <td class="tg-xoz2">MULTIPOLYGON (((3544897.199 946994.621, 354491...</td>
+          </tr>
+          <tr>
+            <td class="tg-0gtp">4</td>
+            <td class="tg-0gtp">Coahuila de Zaragoza</td>
+            <td class="tg-0gtp">169</td>
+            <td class="tg-0gtp">147</td>
+            <td class="tg-0gtp">22</td>
+            <td class="tg-0gtp">...</td>
+            <td class="tg-0gtp">273</td>
+            <td class="tg-0gtp">235</td>
+            <td class="tg-0gtp">38</td>
+            <td class="tg-0gtp">9.0</td>
+            <td class="tg-0gtp">15.0</td>
+            <td class="tg-0gtp">2.0</td>
+            <td class="tg-0gtp">POLYGON ((2469954.193 1978522.993, 2469982.807..</td>
+          </tr>
+        </tbody>
+        </table>
+<br>
+    <h3>Quantitative Analysis</h3>
+
+    <p style="text-align:left;margin: 20px 300px 20px 300px">
+        Total Suicides = women + men + unknown (positive skew)
+    </p>
+
+        <table class="tg" style="margin: 20px 300px 20px 300px">
+        <thead>
+          <tr>
+            <th class="tg-j6zm">   <br><span style="color:black">Metrics</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2010_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2011_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2012_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2013_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2014_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2015_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2016_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2017_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2018_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2019_Total</span>   </th>
+            <th class="tg-j6zm">   <br><span style="color:black">2020_Total</span>   </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">count</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+          </tr>
+          <tr>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">mean</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">156.4375</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">178.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">173.0625</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">184.03125</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">197.40625</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">200.3125</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">198.375</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">202.15625</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">202.1875</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">219.75</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">241.5</span>&nbsp;&nbsp;&nbsp;</td>
+          </tr>
+          <tr>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">std</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">117.847889</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">130.903313</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">133.940029</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">136.213894</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">147.14177</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">148.84186</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">145.05544</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">149.46876</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">147.485688</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">157.212821</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">187.482816</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+          </tr>
+          <tr>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">min</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">31</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">30</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">44</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">40</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">42</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">44</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">52</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">46</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">51</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">39</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">50</span>&nbsp;&nbsp;&nbsp;</td>
+          </tr>
+          <tr>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">25%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">60.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">89</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">86.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">100.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">89.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">108.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">98.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">108.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">106.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">117</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">110.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+          </tr>
+          <tr>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">50%</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">131.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">149</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">145.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">139.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">168.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">153</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">162</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">162</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">144.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">171.5</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">190.5</span>&nbsp;&nbsp;&nbsp;</td>
+          </tr>
+          <tr>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">75%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">205.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">221</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">195.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">241.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">246.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">252.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">224.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">262.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">247</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">263.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+            <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">312</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+          </tr>
+          <tr>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">max</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">537</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">600</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">598</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">620</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">670</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">667</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">597</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">658</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">630</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">715</span>&nbsp;&nbsp;&nbsp;</td>
+            <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">832</span>&nbsp;&nbsp;&nbsp;</td>
+          </tr>
+        </tbody>
+        </table>
+
+        <p style="text-align:left;margin: 20px 300px 20px 300px">
+            Men Suicides (positive skew)
+        </p>
+
+            <table class="tg" style="margin: 20px 300px 20px 300px">
+            <thead>
+              <tr>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">Metrics</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2010_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2011_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2012_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2013_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2014_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2015_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2016_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2017_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2018_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2019_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+                <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2020_Hombres</span>&nbsp;&nbsp;&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">count</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+              </tr>
+              <tr>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">mean</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">127.6875</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">144.28125</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">139.375</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">150.375</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">158.1875</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">160.25</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">161.34375</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">163.75</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">164.125</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">179.53125</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">197.0625</span>&nbsp;&nbsp;&nbsp;</td>
+              </tr>
+              <tr>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">std</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">91.736452</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">101.792716</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">104.236316</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">108.532959</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">115.437579</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">116.216705</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">116.070782</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">117.021366</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">116.333433</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">125.262044</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">151.617928</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+              </tr>
+              <tr>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">min</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">25</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">24</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">35</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">32</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">35</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">32</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">44</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">41</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">44</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">34</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">32</span>&nbsp;&nbsp;&nbsp;</td>
+              </tr>
+              <tr>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">25%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">51.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">72.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">64.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">75.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">68.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">85.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">75.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">89.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">86.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">92.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">87</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+              </tr>
+              <tr>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">50%</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">106</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">125.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">119.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">117.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">132.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">128</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">137.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">141</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">119.5</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">142</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">161</span>&nbsp;&nbsp;&nbsp;</td>
+              </tr>
+              <tr>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">75%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">168.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">179</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">157.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">208.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">209.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">203.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">189.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">210.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">203.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">220.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">267.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+              </tr>
+              <tr>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">max</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">405</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">459</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">456</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">477</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">507</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">507</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">476</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">524</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">504</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">553</span>&nbsp;&nbsp;&nbsp;</td>
+                <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">648</span>&nbsp;&nbsp;&nbsp;</td>
+              </tr>
+            </tbody>
+            </table>
+
+            <p style="text-align:left;margin: 20px 300px 20px 300px">
+                Women Suicides (positive skew)
+            </p>
+
+            <style type="text/css">
+                .tg  {border-collapse:collapse;border-color:#aaa;border-spacing:0;border-style:solid;border-width:1px;}
+                .tg td{background-color:#fff;border-color:#aaa;border-style:solid;border-width:0px;color:#333;
+                  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg th{background-color:#f38630;border-color:#aaa;border-style:solid;border-width:0px;color:#fff;
+                  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg .tg-j6zm{font-weight:bold;text-align:left;vertical-align:bottom}
+                .tg .tg-u4qn{background-color:#D9D9D9;text-align:left;vertical-align:bottom}
+                .tg .tg-7zrl{text-align:left;vertical-align:bottom}
+                </style>
+                <table class="tg" style="margin: 20px 300px 20px 300px">
+                <thead>
+                  <tr>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">Metrics</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2010_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2011_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2012_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2013_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2014_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2015_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2016_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2017_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2018_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2019_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                    <th class="tg-j6zm">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2020_Mujeres</span>&nbsp;&nbsp;&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">count</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                  </tr>
+                  <tr>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">mean</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">28.75</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">34.15625</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">33.59375</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">33.59375</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">39.21875</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">39.9375</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">36.96875</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">38.375</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">38.0625</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">40.21875</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">44.25</span>&nbsp;&nbsp;&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">std</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">27.514219</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">30.41552</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">30.48094</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">28.971465</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">33.412123</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">34.262683</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">30.838272</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">33.967489</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">32.948579</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">33.356079</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">37.435536</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                  </tr>
+                  <tr>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">min</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">4</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">7</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">4</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">2</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">6</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">4</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">7</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">3</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:black">8</span>&nbsp;&nbsp;&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">25%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">9</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">15.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">15.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">16</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">20.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">19.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">20</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">18.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">19</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">21.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">18.75</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                  </tr>
+                  <tr>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">50%</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">21.5</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">26.5</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">25.5</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">23</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">29</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">30</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">26.5</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">24</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">26</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">27.5</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">34</span>&nbsp;&nbsp;&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">75%</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">33</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">38</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">43.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">38.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">46.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">48.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">39.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">45.25</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">42.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">47.5</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td class="tg-u4qn"><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span><br><span style="color:black">56</span><span style="background-color:#D9D9D9">&nbsp;&nbsp;&nbsp;</span></td>
+                  </tr>
+                  <tr>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">max</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">132</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">140</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">142</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">143</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">163</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">160</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">129</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">142</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">142</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">162</span>&nbsp;&nbsp;&nbsp;</td>
+                    <td class="tg-7zrl">&nbsp;&nbsp;&nbsp;<br><span style="color:red">184</span>&nbsp;&nbsp;&nbsp;</td>
+                  </tr>
+                </tbody>
+                </table>
+
+    <p style="margin: 20px 300px 20px 300px">
+        Using annual data from the 32 states, we can see that the national average number of total suicides in 2010 was 156 and has been slightly increasing year by 
+        year to reach an average of 242 by 2020. However, looking at the 50th percentile data (median) we can see that the 2010 and 2020 values, 132 and 192 respectively, 
+        are lower and not equal to the average. Therefore, using the average as the representative measure for this dataset would be incorrect as the data has a positive skew, 
+        and for this reason, <b>the median is a relatively more meaningful metric</b> and will be used above the mean in subsequent analyses. <br><br>
+
+        The maximum number of suicides recorded per year is also a metric of great significance for this analysis as it allows us to see the severity or worst-case scenario
+         reached during these 10 years. From 2010 to 2020, <b>the maximum number of total suicides per year has increased by 154%</b>. <br><br>
+
+         An interesting fact about the above metrics is that if they are analyzed in relation to cases of men over women, <b>male suicides are between 4 and 5 times more 
+            frequent than female suicides</b>.<br><br>
+
+    </p>
+
+    <h3>Data Visualization</h3>
+    <p style="text-align:center;"><b>Scatter Line Plots</b></p>
+
+<p style="text-align:center;">
+    <iframe scrolling="no" frameBorder="0" src="figs/total_suicides_2010_2020.html" seamless width="70%" height="700"></iframe></p>
+
+    <p style="margin: 20px 300px 20px 300px">
+        Figure 1 presents absolute suicides by year from 2010 to 2020. The distributions for male and female totals are also shown. 
+        In this graph it is easy to see how the number of female suicides per year is between 4 and 5 times lower than the number of male cases, 
+        despite the fact that the ratio of men to women in Mexico is almost 1:1. In general, there is a positive trend of increasing cases per year,
+         which also coincides with annual population increases. It should be noted that the graphs of total cases do not always coincide with the sum of 
+         male and female cases, as unrecognized cases are also included in the total.
+
+    </p>
+
+    <p style="text-align:center;">
+    <iframe scrolling="no" frameBorder="0" src="figs/suicidios_total_entity.html" seamless width="70%" height="700"></iframe></p>
+
+    <p style="text-align:center;">
+        <iframe scrolling="no" frameBorder="0" src="figs/suicidios_por_entidad.html" seamless width="70%" height="500"></iframe></p>
+
+    
+    <p style="margin: 20px 300px 20px 300px">
+    Figure 2 and 3 present similar information to Figure 1, this time by state. In absolute data, we can see that the largest number of suicides is for the state of Mexico, 
+    this is due to its large population of around 16M. In the case of Yucatan, we can see peaks and valleys throughout the 10 years, until reaching its maximum value in 2019 
+    with 245 suicides registered in the entity.<br><br>
+    However, when we take the data per 100,000 inhabitants, things change a bit.
+    </p>
+
+    <p style="text-align:center;">
+        <iframe scrolling="no" frameBorder="0" src="figs/suicidios_100k_entity.html" seamless width="70%" height="600"></iframe></p>
+        
+    <p style="margin: 20px 300px 20px 300px">
+        We can see that the suicide rates per 100,000 inhabitants by state show a different distribution if compared to 
+        the absolutes in Figure 2, and that <b>using a rate is much more appropriate than the absolutes</b> given the different population distributions by state. 
+        We see that in reality, <b>Yucatan ranks in the top of suicide rates</b> along with Aguscalientes and Chihuahua.<br><br><br>
+    </p>
+
+    <p style="text-align:center;"><b>Boxplots</b></p>
+
+    <p style="text-align:center;">
+        <iframe scrolling="no" frameBorder="0" src="figs/suicidios_2010_2020.html" seamless width="70%" height="700"></iframe></p>
+
+        <p style="margin: 20px 300px 20px 300px">
+            Figure 5 presents boxplots reflecting the distribution of suicides recorded by each of the 32 entities over 10 years. 
+            In general, there has been a slight increase year by year with respect to the total numbers per state and we can also observe that in general, 
+            <b>at least 16 out of 32 states have recorded an annual number equal to or less than 190 suicides</b>, and that the second half has extended to 4 times this number (800), 
+            as can be observed for 2020.<br><br><br>
+        </p>
+
+        <p style="text-align:center;"><b>Chloropeth Maps</b></p>
+
+        <p style="margin: 20px 300px 20px 300px">
+            There is nothing better to represent state population and rate information than a map. 
+            Not only does it allow us to better visualize the numbers, but it also gives us an idea of the <b>geographic and cultural context</b> that may be affecting these numbers.
+        </p>
+
+        <p style="margin: 20px 300px 20px 300px">
+            The following map shows population totals and suicide and rates by state and sex. The most interesting map, 
+            in my opinion given that I live in Yucatan, is the one corresponding to the female suicide rates, since here <b>Yucatán occupies the 
+                first place in female suicides</b> along with Campeche and Chihuahua. In general, we see that <b>the southeast has the highest suicide rate in the country</b>.
+            </p>
+
+
+        <p style="text-align:center;">
+            <iframe scrolling="no" frameBorder="0" src="figs/suicidios_mapa_inegi.html" seamless width="70%" height="800"></iframe></p>
+    
+
+<h3>Conclusions</h3>
+
+<p style="margin: 20px 300px 20px 300px">
+    To summarize, I would like to say that <b>suicide cases have had a positive growth in recent years</b>, and with-it suicides are also becoming more frequent. 
+    However, the most significant information of this exploration was obtained from the suicide rates by sex, since <b>men have a suicide tendency 4 times higher than women</b>,
+     despite the fact that at the national level there are almost the same number of men and women. This, I dare say, is due more than anything else to <b>cultural and gender
+        gaps between these two sectors of the population</b>, such as exposure to organized crime, job opportunities, emotional intelligence, among others. Similarly, a very 
+      interesting result was the fact that <b>southeastern states have the highest rates of female suicides</b>, a fact that I find very interesting since the southeast is also 
+      characterized by the lowest crime rates in the country, which makes us think about the theory that <b>the lower the crime rate in the state, the higher the probability of 
+        violent deaths caused by suicide</b>. Additionally, since we are talking about women, it is not daring to say that <b>several female suicides are actually femicides</b>, so 
+      <b>this graph also shows us the states with a latent possibility of a higher gender-based violence</b>.<br><br><br><br><br>
+</p>
+
+</body>
+</html>
